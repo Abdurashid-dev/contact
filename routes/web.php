@@ -21,4 +21,5 @@ Auth::routes();
 
 Route::group(['middleware' => 'auth', 'as'=>'admin.','prefix'=>'admin'], function () {
     Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::resource('contact', App\Http\Controllers\ContactController::class);
 });
