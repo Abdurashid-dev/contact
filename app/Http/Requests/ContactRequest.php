@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Contact;
 use App\Models\Email;
 use App\Models\Phone;
 use App\Rules\EmailValidation;
@@ -30,10 +31,11 @@ class ContactRequest extends FormRequest
 
     public function rules()
     {
+        $contact = Contact::with('emails', 'phones')->findOrFail($this->id);
         return [
             'name' => 'required|string|max:255',
-            'emails' => ['required','max:255','unique:emails,email', new EmailValidation()],
-            'phones' => ['required','max:255','unique:phones,phone', new PhoneValidation()],
+            'emails' => ['required', 'max:255', new EmailValidation(), 'unique:emails,email'.$contact->emails->first()->email],
+            'phones' => ['required', 'max:255', new PhoneValidation(), 'unique:phones,phone'.$contact->phones->first()->phone],
         ];
     }
 }

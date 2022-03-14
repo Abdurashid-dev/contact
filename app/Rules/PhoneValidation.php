@@ -2,6 +2,7 @@
 
 namespace App\Rules;
 
+use App\Models\Contact;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 
@@ -27,7 +28,7 @@ class PhoneValidation implements Rule
     public function passes($attribute, $value)
     {
         $rules = [
-            'phone' => 'required|numeric|different:phone',
+            'phone' => 'required|numeric|max:255',
         ];
 
         foreach ($value as $phone) {

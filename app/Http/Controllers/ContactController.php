@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ContactRequest;
 use App\Models\Contact;
+use App\Models\Email;
+use App\Models\Phone;
 use Illuminate\Http\Request;
 
 class ContactController extends Controller
@@ -16,7 +18,8 @@ class ContactController extends Controller
      */
     public function index()
     {
-        return view('admin.contact.index');
+        $contacts = Contact::with('emails', 'phones')->paginate(10);
+        return view('admin.contact.index', compact('contacts'));
     }
 
     /**
@@ -33,12 +36,31 @@ class ContactController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(ContactRequest $request)
     {
-        dd($request->all());
-        //validate multiple email
+//        dd($request->emails);
+        $contact = Contact::create([
+            'name' => $request->name,
+        ]);
+        if ($request->emails) {
+            foreach ($request->emails as $email) {
+                Email::create([
+                    'email' => $email,
+                    'contact_id' => $contact->id,
+                ]);
+            }
+        }
+        if ($request->phones) {
+            foreach ($request->phones as $phone) {
+                Phone::create([
+                    'phone' => $phone,
+                    'contact_id' => $contact->id,
+                ]);
+            }
+        }
+        return redirect()->route('admin.contact.index')->with('success', 'Contact created successfully!');
     }
 
     /**
@@ -60,7 +82,9 @@ class ContactController extends Controller
      */
     public function edit(Contact $contact)
     {
-        //
+        $contact = Contact::with('emails', 'phones')->findOrFail($contact->id);
+//        dd($contact->emails);
+        return view('admin.contact.edit', compact('contact'));
     }
 
     /**
@@ -68,21 +92,47 @@ class ContactController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Contact  $contact
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, Contact $contact)
+    public function update(ContactRequest $request, Contact $contact)
     {
-        //
+        $contact->update([
+            'name' => $request->name,
+        ]);
+        if ($request->emails) {
+            foreach ($request->emails as $email) {
+                $email = Email::updateOrCreate(
+                    ['email' => $email],
+                    ['contact_id' => $contact->id]
+                );
+            }
+        }
+        if ($request->phones) {
+            foreach ($request->phones as $phone) {
+                Phone::create([
+                    'phone' => $phone,
+                    'contact_id' => $contact->id,
+                ]);
+            }
+        }
+        return redirect()->route('admin.contact.index')->with('success', 'Contact updated successfully!');
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\Contact  $contact
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Contact $contact)
     {
-        //
+        foreach ($contact->emails as $email) {
+            $email->delete();
+        }
+        foreach ($contact->phones as $phone) {
+            $phone->delete();
+        }
+        $contact->delete();
+        return redirect()->route('admin.contact.index')->with('success', 'Contact deleted successfully!');
     }
 }

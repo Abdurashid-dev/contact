@@ -2,6 +2,7 @@
 
 namespace App\Rules;
 
+use App\Models\Contact;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 
@@ -20,8 +21,9 @@ class EmailValidation implements Rule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  string  $attribute
-     * @param  mixed  $value
+     * @param string $attribute
+     * @param mixed $value
+     * @param $validator
      * @return bool
      */
     public function passes($attribute, $value)

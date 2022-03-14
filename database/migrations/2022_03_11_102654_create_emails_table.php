@@ -15,7 +15,7 @@ class CreateEmailsTable extends Migration
     {
         Schema::create('emails', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('contact_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('contact_id');
             $table->string('email')->unique();
             $table->timestamps();
         });
