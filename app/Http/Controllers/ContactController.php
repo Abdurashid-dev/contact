@@ -134,4 +134,14 @@ class ContactController extends Controller
         $contact->delete();
         return redirect()->route('admin.contact.index')->with('success', 'Contact deleted successfully!');
     }
+//    //validation
+//    public function validateData(){
+//        return request()->validate([
+//            'name' => 'required|string|max:255',
+//            'emails' => 'required|array',
+//            'emails.*' => 'email',
+//            'phones' => 'required|array',
+//            'phones.*' => 'numeric',
+//        ]);
+//    }
 }
