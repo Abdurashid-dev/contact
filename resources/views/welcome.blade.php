@@ -12,7 +12,11 @@
 </head>
 <body>
 <div class="container p-3">
-    <div class="card">
+    <span class="p-4 text-danger">
+    * if you want to enter admin panel, you need to write /admin before url
+    </span>
+
+    <div class="card mt-3">
         <div class="card-header">
             Contacts
         </div>
@@ -24,7 +28,7 @@
                     <th>Phone(s)</th>
                     <th>Created at</th>
                 </tr>
-                @foreach($contacts as $contact)
+                @forelse($contacts as $contact)
                     <tr>
                         <td>{{$contact->name}}</td>
                         <td>
@@ -39,7 +43,11 @@
                         </td>
                         <td>{{$contact->created_at}}</td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="4" class="text-center">No contacts</td>
+                    </tr>
+                @endforelse
             </table>
         </div>
     </div>
