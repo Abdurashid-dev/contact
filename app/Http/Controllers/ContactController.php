@@ -35,7 +35,7 @@ class ContactController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(ContactRequest $request)
@@ -65,7 +65,7 @@ class ContactController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Contact  $contact
+     * @param \App\Models\Contact $contact
      * @return \Illuminate\Http\Response
      */
     public function show(Contact $contact)
@@ -76,7 +76,7 @@ class ContactController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Contact  $contact
+     * @param \App\Models\Contact $contact
      * @return \Illuminate\Http\Response
      */
     public function edit(Contact $contact)
@@ -89,21 +89,23 @@ class ContactController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Contact  $contact
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Contact $contact
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(ContactRequest $request, Contact $contact)
+    public function update(ContactRequest $request, $contact)
     {
+//        dd($request);
+        $contact = Contact::with('emails', 'phones')->findOrFail($contact);
         $contact->update([
             'name' => $request->name,
         ]);
         if ($request->emails) {
             foreach ($request->emails as $email) {
-                $email = Email::updateOrCreate(
-                    ['email' => $email],
-                    ['contact_id' => $contact->id]
-                );
+                Email::create([
+                    'email' => $email,
+                    'contact_id' => $contact->id,
+                ]);
             }
         }
         if ($request->phones) {
@@ -120,7 +122,7 @@ class ContactController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Contact  $contact
+     * @param \App\Models\Contact $contact
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Contact $contact)
@@ -134,14 +136,4 @@ class ContactController extends Controller
         $contact->delete();
         return redirect()->route('admin.contact.index')->with('success', 'Contact deleted successfully!');
     }
-//    //validation
-//    public function validateData(){
-//        return request()->validate([
-//            'name' => 'required|string|max:255',
-//            'emails' => 'required|array',
-//            'emails.*' => 'email',
-//            'phones' => 'required|array',
-//            'phones.*' => 'numeric',
-//        ]);
-//    }
 }

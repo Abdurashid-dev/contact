@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Contact;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,7 +15,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    $contacts  = Contact::with('emails', 'phones')->get();
+//    dd($contacts);
+    return view('welcome', compact('contacts'));
 });
 
 Auth::routes();

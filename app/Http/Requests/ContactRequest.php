@@ -3,8 +3,12 @@
 namespace App\Http\Requests;
 
 use App\Models\Contact;
+use App\Models\Email;
+use App\Models\Phone;
+use App\Rules\EmailValidation;
+use App\Rules\PhoneValidation;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 
 class ContactRequest extends FormRequest
 {
@@ -27,29 +31,26 @@ class ContactRequest extends FormRequest
 
     public function rules()
     {
-//        dd($this->all());
-        if (isset($this->id)){
-            $contact = Contact::with('emails', 'phones')->findOrFail($this->id);
-//            dd($contact->emails->first()->email);
+        if (isset($this->id)) {
+            $contact = Contact::with('emails', 'phones')->find($this->id);
+            foreach ($contact->emails as $email){
+                $email = Email::findOrFail($email->id);
+                $email->delete();
+            }
+            foreach ($contact->phones as $phone){
+                $phone = Phone::findOrFail($phone->id);
+                $phone->delete();
+            }
             return [
                 'name' => 'required|string|max:255',
-//                'emails' => ['required', 'max:255', 'unique:emails,email'.$contact->emails->first()->id],
-                    'emails.*' => ['required', 'max:255',
-                        Rule::unique('emails')->ignore($contact->emails->first()->id)
-                            ->where(function ($query) {
-                                $query->where('contact_id', $this->id);
-                            })
-                        ],
-//                'phones' => ['required', 'max:255', 'unique:phones,phone'.$contact->phones->first()->id],
-//                'phones.*' => ['required', 'max:255', 'unique:phones, phone, '.$contact->phones->first()->email],
+                'emails' => ['required', 'max:255', new EmailValidation()],
+                'phones' => ['required', 'max:255', new PhoneValidation()],
             ];
-        }else{
+        } else {
             return [
                 'name' => 'required|string|max:255',
-//                'emails' => ['required', 'max:255', 'unique:emails,email'],
                 'emails.*' => ['required', 'max:255', 'unique:emails,email'],
-//                'phones' => ['required', 'min:10', 'max:255', 'unique:phones,phone'],
-                'phones.*' => ['required', 'min:10', 'max:255', 'unique:phones,phone'],
+                'phones.*' => ['required', 'min:10', 'max:255', 'unique:phones'],
             ];
         }
     }

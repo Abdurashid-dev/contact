@@ -28,7 +28,7 @@ class PhoneValidation implements Rule
     public function passes($attribute, $value)
     {
         $rules = [
-            'phone' => 'required|numeric|max:255',
+            'phone' => 'required|max:255',
         ];
 
         foreach ($value as $phone) {
